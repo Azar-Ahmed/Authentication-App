@@ -1,18 +1,22 @@
 import React, { useState } from 'react'
-import {Link} from 'react-router-dom'
-import {Toaster} from 'react-hot-toast'
+import {Link, useNavigate} from 'react-router-dom'
+import {toast, Toaster} from 'react-hot-toast'
 import {useFormik} from 'formik'
 import {registerValidate} from '../helper/validate'
 
 import convertToBase64 from '../helper/convert'
+import {register} from '../helper/helper.js'
 
 import avatar from '../assets/profile.png'
 import styles from '../styles/Username.module.css'
 
 export default function Register() {
 
+  const navigate = useNavigate()
+
   const [file, setFile] = useState()
   
+
   const formik = useFormik({
     initialValues:{
       email : 'admin@gmail.com',
@@ -24,7 +28,13 @@ export default function Register() {
     validateOnChange: false,
     onSubmit: async values =>{
      values = await Object.assign(values, {profile: file || ''})
-      console.log(values)
+     let registerPromise =  register(values)
+     toast.promise(registerPromise, {
+        loading: 'Creating...',
+        success: <b>Register Successfully...!</b>,
+        error: <b>Could not register</b>
+     })
+     registerPromise.then(function(){navigate('/')})
     }
   })
   
